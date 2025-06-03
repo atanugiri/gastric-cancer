@@ -65,21 +65,33 @@ def plot_grouped_expression(
     if order:
         plt.xticks(ticks=range(len(order)), labels=[str(x) for x in order])
 
-    # Optional t-test
+    # Optional statistical test
     if show_pvalue:
         unique_groups = plot_df[group_col].dropna().unique()
+
         if len(unique_groups) == 2:
+            # Two groups → t-test
             g1, g2 = unique_groups
             y1 = plot_df[plot_df[group_col] == g1][y_col]
             y2 = plot_df[plot_df[group_col] == g2][y_col]
             stat, pval = ttest_ind(y1, y2, equal_var=False)
+            test_label = f"t-test p = {pval:.3e}"
+        elif len(unique_groups) > 2:
+            # More than 2 groups → one-way ANOVA
+            groups = [
+                plot_df[plot_df[group_col] == grp][y_col].dropna()
+                for grp in (order if order else unique_groups)
+            ]
+            stat, pval = f_oneway(*groups)
+            test_label = f"ANOVA p = {pval:.3e}"
+        else:
+            test_label = None
 
+        # Annotate plot if test was performed
+        if test_label:
             max_y = plot_df[y_col].max()
             y_pos = max_y * 1.1
-            x1 = order.index(g1) if order else 0
-            x2 = order.index(g2) if order else 1
-            plt.plot([x1, x1, x2, x2], [y_pos, y_pos*1.05, y_pos*1.05, y_pos], color="black")
-            plt.text((x1 + x2)/2, y_pos*1.08, f"p = {pval:.3e}", ha='center')
+            plt.text(0.5, y_pos, test_label, ha='center', va='bottom', fontsize=10, transform=plt.gca().transAxes)
 
     plt.tight_layout()
     if save_path:
