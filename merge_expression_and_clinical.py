@@ -1,3 +1,5 @@
+import pandas as pd
+
 def merge_expression_and_clinical(expression_df, clinical_df, gene_symbol, id_col="Sample ID"):
     """
     Merges clinical and expression data on sample ID, and appends the expression value for one gene.
