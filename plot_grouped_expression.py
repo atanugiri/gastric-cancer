@@ -12,32 +12,23 @@ def plot_grouped_expression(
     figsize=(5, 5),
     show_pvalue=True,
     plot_type="box",
-    xtick_rotation=None  # New argument
+    xtick_rotation=None
 ):
     """
-    Plot grouped bar or box plot for any y-column in merged_df.
+    Plot grouped bar or box plot and return the figure and axis.
 
-    Parameters:
-    - df: DataFrame with y_col and group_col
-    - y_col: column for y-axis (e.g., 'CD36 Expression')
-    - group_col: column to group by (e.g., 'Biopsy Site')
-    - palette: dict mapping group -> color
-    - order: list of group levels to control x-axis order
-    - save_path: base path to save .png/.pdf (no extension)
-    - figsize: (width, height) tuple
-    - show_pvalue: print t-test/ANOVA p-value in terminal
-    - plot_type: 'box' or 'bar'
-    - xtick_rotation: optional int/float to rotate x-axis labels (e.g., 90)
+    Returns:
+    - fig: matplotlib Figure object
+    - ax: matplotlib Axes object
     """
     # Drop missing values
     plot_df = df.dropna(subset=[y_col, group_col]).copy()
 
-    # Create figure
-    plt.figure(figsize=figsize)
+    # Create fig and ax explicitly
+    fig, ax = plt.subplots(figsize=figsize)
 
     # Turn off horizontal gridlines
     sns.set(style="whitegrid")
-    ax = plt.gca()
     ax.yaxis.grid(False)
 
     if plot_type == "box":
@@ -49,7 +40,8 @@ def plot_grouped_expression(
             palette=palette,
             order=order,
             dodge=False,
-            legend=False
+            legend=False,
+            ax=ax
         )
     elif plot_type == "bar":
         sns.barplot(
@@ -61,30 +53,32 @@ def plot_grouped_expression(
             order=order,
             errorbar="se",
             dodge=False,
-            legend=False
+            legend=False,
+            ax=ax
         )
     else:
         raise ValueError("plot_type must be 'box' or 'bar'")
 
     # Label formatting
-    plt.xlabel(group_col.replace("_", " "))
-    plt.ylabel(y_col.replace("_", " "))
-    plt.title(f"{y_col} by {group_col}")
+    ax.set_xlabel(group_col.replace("_", " "))
+    ax.set_ylabel(y_col.replace("_", " "))
+    ax.set_title(f"{y_col} by {group_col}")
 
+    # Optional xtick relabeling
     if order:
-        plt.xticks(ticks=range(len(order)), labels=[str(x) for x in order])
+        ax.set_xticks(range(len(order)))
+        ax.set_xticklabels([str(x) for x in order])
 
-    # Optional x-tick rotation
     if xtick_rotation is not None:
-        plt.xticks(rotation=xtick_rotation, ha='right' if xtick_rotation > 45 else 'center')
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=xtick_rotation,
+                           ha='right' if xtick_rotation > 45 else 'center')
 
-    plt.tight_layout()
+    fig.tight_layout()
+
     if save_path:
-        plt.savefig(f"{save_path}.png", dpi=300, bbox_inches="tight")
-        plt.savefig(f"{save_path}.pdf", bbox_inches="tight")
-    plt.show()
+        fig.savefig(f"{save_path}.png", dpi=300, bbox_inches="tight")
+        fig.savefig(f"{save_path}.pdf", bbox_inches="tight")
 
-    # Print statistical test result instead of annotating
     if show_pvalue:
         unique_groups = plot_df[group_col].dropna().unique()
 
@@ -101,3 +95,5 @@ def plot_grouped_expression(
             ]
             stat, pval = f_oneway(*groups)
             print(f"ANOVA: F = {stat:.3f}, p = {pval:.3e}")
+
+    return fig, ax
