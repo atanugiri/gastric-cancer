@@ -6,3 +6,22 @@ __pycache__/
 *.json
 *.pdf
 *.DS_Store
+!schematic_multi_database_integration_workflow.pdf
+
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.nav
+*.snm
+*.vrb
+*.lof
+*.lot
