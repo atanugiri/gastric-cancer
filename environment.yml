@@ -1,0 +1,17 @@
+name: gastric
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - scipy
+  - statsmodels
+  - lifelines
+  - openpyxl
+  - jupyter
+  - notebook
+  - ipykernel
