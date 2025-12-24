@@ -26,6 +26,7 @@ This repository contains a reproducible pipeline for analyzing the expression of
 │   ├── CD36_KM.pdf
 │   └── CD36_volcano_plot_with_fdr.pdf
 ├── environment.yml          # Conda environment specification
+├── schematic_multi_database_integration_workflow.tex  # LaTeX schematic of workflow
 └── README.md                # Project overview
 ```
 
